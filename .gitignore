@@ -1,0 +1,12 @@
+# Réglages personnels, créés automatiquement au premier lancement
+PanadapterBridge.json
+
+# Journaux
+logs/
+*.log
+
+# Archive de release (publiée dans les Releases GitHub)
+*.zip
+
+# Notes de release (utilisées par gh release)
+release-notes.md

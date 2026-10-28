@@ -1,0 +1,69 @@
+PanadapterBridge 1.0 - @F5PBG 2026 - ExpertSDR3 <-> FT-2000
+===========================================================
+
+Utilitaire pour le ColibriNANO branche sur la 1ere FI du FT-2000 (69,450 MHz nominal).
+Fonctionne tel quel sous Windows 10 et 11 : rien a installer (PowerShell + WinForms, integres a Windows).
+
+Ce qu'il fait
+-------------
+- Un clic dans le panorama d'ExpertSDR3 -> le FT-2000 QSY sur la frequence cliquee (inversion de la FI
+  prise en compte, arrondi au pas choisi, 500 Hz par defaut), puis ExpertSDR3 est ramene sur la FI :
+  le signal clique est au centre, et le FT-2000 est dessus.
+- Un cran de molette dans ExpertSDR3 deplace le FT-2000 d'un pas fixe (100 a 500 Hz, reglable), en
+  restant sur la grille (14.072.000 -> 14.072.500 -> 14.073.000...).
+- ExpertSDR3 est maintenu en permanence sur la FI (VFO et centre du panorama).
+- Le mode du FT-2000 est recopie dans ExpertSDR3 avec LSB/USB echanges (FT-2000 en USB -> ExpertSDR3 en LSB),
+  et la FI ecoutee est choisie selon le mode du FT-2000 : le poste decale son oscillateur de la porteuse BLU
+  (LSB 69,448470 MHz, USB 69,451390 MHz par defaut ; CW / AM / FM / DIG reglables separement).
+- Voyants de connexion ExpertSDR3 / FT-2000, frequence et mode du poste en direct, journal.
+
+Limites
+-------
+- Le mode se synchronise dans un seul sens : FT-2000 -> ExpertSDR3. Le serveur IP de HRD permet de lire
+  le mode du poste mais pas de le changer ; un changement de mode fait dans ExpertSDR3 est sans effet sur
+  le poste, et ExpertSDR3 est ramene au mode du poste.
+- L'echelle d'ExpertSDR3 affiche la FI (69,xxx MHz) et le spectre reste inverse : seul Expert Electronics
+  peut changer cela (issue #234 sur GitHub).
+
+Fichiers
+--------
+PanadapterBridge.bat        : lance l'utilitaire (fenetre). C'est le seul fichier a double-cliquer.
+PanadapterBridge_debug.bat  : meme chose avec la console visible, si la fenetre ne s'ouvre pas.
+PanadapterBridge.ps1        : le programme.
+PanadapterBridge.json       : vos reglages, cree automatiquement.
+
+Mise en route
+-------------
+1. Dans ExpertSDR3 : Options -> TCI -> activer, port 50001.
+2. Dans HRD Rig Control : Tools -> IP Server -> cocher "Enable", port 7809 (rien a changer sur le partage de COM).
+3. Double-clic sur PanadapterBridge.bat. Verifier les FI par mode (bouton "Permuter LSB/USB" si elles sont
+   dans le mauvais sens), puis Demarrer.
+4. Les deux voyants passent au vert ; cliquer sur un signal dans ExpertSDR3 et verifier que le FT-2000 suit.
+   Si un clic a droite du centre fait monter le poste alors qu'il devrait descendre (ou l'inverse), changer
+   la case "Spectre inverse".
+
+Fenetre et demarrage
+--------------------
+- Quand la passerelle est en marche, la croix de la fenetre la reduit dans la barre des taches sans
+  l'arreter. Pour quitter : cliquer sur Arreter, puis sur la croix (la croix ferme normalement quand
+  la passerelle est arretee).
+- "Demarrer avec Windows" : cree (ou supprime) un raccourci vers PanadapterBridge.bat dans le dossier
+  Demarrage de Windows ; le programme s'ouvre alors tout seul a l'allumage du PC.
+- Si la passerelle tournait a la derniere fermeture (arret de Windows compris), elle est relancee
+  automatiquement a l'ouverture suivante du programme. Si on l'avait arretee avec le bouton Arreter,
+  elle ne se relance pas.
+- "Avant-plan" : garde la fenetre au-dessus des autres (par exemple au-dessus d'ExpertSDR3).
+- La liste des ports COM ne propose que les ports presents sur la machine et non occupes par un autre
+  programme ; elle est rafraichie a chaque ouverture de la liste.
+
+Si ca ne QSY pas
+----------------
+- Cocher "Journal" : on voit les messages recus d'ExpertSDR3 et les echanges avec HRD.
+- Voyant FT-2000 gris : verifier que le serveur IP est bien active dans HRD et le numero de port.
+- Voyant ExpertSDR3 gris : verifier le port TCI dans ExpertSDR3 et que le ColibriNANO est demarre (Start).
+- Sans HRD : choisir "CAT direct sur un port COM" (port relie au FT-2000, vitesse CAT du poste).
+
+Securite
+--------
+Le .bat lance PowerShell avec "-ExecutionPolicy Bypass" uniquement pour ce script : aucun reglage
+de Windows n'est modifie. Bitdefender peut demander une confirmation au premier lancement.
